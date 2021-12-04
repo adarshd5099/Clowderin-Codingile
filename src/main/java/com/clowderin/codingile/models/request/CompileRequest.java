@@ -1,6 +1,5 @@
-package com.clowderin.Codingile.models.request;
+package com.clowderin.codingile.models.request;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import lombok.Getter;
 import lombok.Setter;
 

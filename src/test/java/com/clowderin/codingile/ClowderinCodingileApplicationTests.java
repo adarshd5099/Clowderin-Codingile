@@ -1,4 +1,4 @@
-package com.clowderin.Codingile;
+package com.clowderin.codingile;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
