@@ -1,6 +1,7 @@
 package com.clowderin.Codingile.services;
 
 import com.clowderin.Codingile.models.request.CompileRequest;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -106,6 +107,7 @@ public class CompileService {
         String result = stringBuilder.toString();
         inputFile.delete();
         programFile.delete();
+        FileUtils.deleteDirectory(new File(programDir));
 
         System.out.println("Result: " + result);
         return result;
