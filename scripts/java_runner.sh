@@ -1,3 +1,3 @@
 #!/bin/bash
 javac $1
-java $1 < $2
+timeout 2s java $1 < $2

@@ -11,38 +11,23 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/compile")
 @Slf4j
 public class CodingController {
 
     @Autowired
     private CompileService compileService;
-
-    @GetMapping("/gcc")
-    public Map<String,String> compileGcc(CompileRequest compileRequest) throws IOException {
-        var result = compileService.gccService(compileRequest);
-        Map<String,String> response = new LinkedHashMap<>();
-        response.put("data",result);
-        response.put("error",null);
-        return response;
-    }
-
-    @GetMapping("/python")
-    public Map<String,String> compilePython(CompileRequest compileRequest) throws IOException {
-        var result = compileService.pythonService(compileRequest);
-        Map<String,String> response = new LinkedHashMap<>();
-        response.put("data",result);
-        response.put("error",null);
-        return response;
-    }
-
-    @GetMapping("/java")
-    public Map<String,String> compileJava(CompileRequest compileRequest) throws IOException {
-        var result = compileService.javaService(compileRequest);
-        Map<String,String> response = new LinkedHashMap<>();
-        response.put("data",result);
-        response.put("error",null);
-        return response;
+    @GetMapping("/compile")
+    public Map<String, String> compileGcc(CompileRequest compileRequest) throws IOException {
+        var result = "";
+        switch (compileRequest.getLanguageCode()) {
+            case "0":
+            case "1":
+                return compileService.pythonService(compileRequest, Integer.parseInt(compileRequest.getLanguageCode()));
+            case "8":
+                return compileService.javaService(compileRequest);
+            default:
+                return compileService.gccService(compileRequest);
+        }
     }
 
 }

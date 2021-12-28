@@ -2,21 +2,31 @@ package com.clowderin.Codingile.services;
 
 import com.clowderin.Codingile.models.request.CompileRequest;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class CompileService {
-    public String gccService(CompileRequest compileRequest) throws IOException {
+
+    @Autowired
+    private ValidationService validationService;
+
+    public  Map<String, String> gccService(CompileRequest compileRequest) throws IOException {
         String programId = java.util.UUID.randomUUID().toString();
         File tempDirectory = new File(System.getProperty("user.dir"));
-        File programFile = new File(tempDirectory+"/temp", programId+".c");
+        var programDir = tempDirectory+"/temp/"+programId;
+        var a = new File(programDir).mkdirs();
+        File programFile = new File(programDir, programId+".c");
         FileWriter myWriter = new FileWriter(programFile);
         myWriter.write(compileRequest.getProgramBody());
         myWriter.close();
 
-        File inputFile = new File(tempDirectory+"/temp",programId+"input");
+        File inputFile = new File(programDir,programId+"input");
         FileWriter inputWriter = new FileWriter(inputFile);
         inputWriter.write(compileRequest.getInput());
         inputWriter.close();
@@ -35,14 +45,28 @@ public class CompileService {
             stringBuilder.append(line);
         }
         String result = stringBuilder.toString();
-        inputFile.delete();
-        programFile.delete();
+        FileUtils.deleteDirectory(new File(programDir));
 
-        System.out.println("Result: " + result);
-        return result;
+        BufferedReader error =
+                new BufferedReader(new InputStreamReader(process.getErrorStream()));
+        StringBuilder errorString = new StringBuilder();
+        while ((line = error.readLine()) != null) {
+            errorString.append(line);
+        }
+
+        Map<String, String> response = new LinkedHashMap<>();
+        if(validationService.validateOutputSize(result)) {
+            response.put("data", errorString + result);
+            response.put("error", null);
+        }
+        else {
+            response.put("data", errorString + result);
+            response.put("error","Your Code Produced unusually large output");
+        }
+        return response;
     }
 
-    public String pythonService(CompileRequest compileRequest) throws IOException {
+    public Map<String, String> pythonService(CompileRequest compileRequest,int pyVer) throws IOException {
         String programId = java.util.UUID.randomUUID().toString();
         File tempDirectory = new File(System.getProperty("user.dir"));
         File programFile = new File(tempDirectory+"/temp", programId+".py");
@@ -57,8 +81,11 @@ public class CompileService {
 
         String scriptPath = System.getProperty("user.dir") + "/scripts";
         String programPath = programFile.getPath();
+        String scriptName = "/python_runner.sh";
+        if(pyVer == 0)
+            scriptName = "/python3_runner.sh";
 
-        ProcessBuilder builder = new ProcessBuilder("/bin/bash",scriptPath+"/python_runner.sh",programPath,inputFile.toString(),programId);
+        ProcessBuilder builder = new ProcessBuilder("/bin/bash",scriptPath+scriptName,programPath,inputFile.toString(),programId);
         Process process = builder.start();
 
         BufferedReader reader =
@@ -69,14 +96,31 @@ public class CompileService {
             stringBuilder.append(line);
         }
         String result = stringBuilder.toString();
+
+        BufferedReader error =
+                new BufferedReader(new InputStreamReader(process.getErrorStream()));
+        StringBuilder errorString = new StringBuilder();
+        while ((line = error.readLine()) != null) {
+            errorString.append(line);
+        }
+
         inputFile.delete();
         programFile.delete();
 
-        System.out.println("Result: " + result);
-        return result;
+        Map<String, String> response = new LinkedHashMap<>();
+        if(validationService.validateOutputSize(result)) {
+            response.put("data", errorString + result);
+            response.put("error", null);
+        }
+        else {
+            response.put("data", errorString + result);
+            response.put("error","Your Code Produced unusually large output");
+        }
+       return response;
+
     }
 
-    public String javaService(CompileRequest compileRequest) throws IOException {
+    public  Map<String, String> javaService(CompileRequest compileRequest) throws IOException {
         String programId = java.util.UUID.randomUUID().toString();
         File tempDirectory = new File(System.getProperty("user.dir"));
         var programDir = tempDirectory+"/temp/"+programId;
@@ -105,11 +149,24 @@ public class CompileService {
             stringBuilder.append(line);
         }
         String result = stringBuilder.toString();
-        inputFile.delete();
-        programFile.delete();
-        FileUtils.deleteDirectory(new File(programDir));
 
-        System.out.println("Result: " + result);
-        return result;
+        BufferedReader error =
+                new BufferedReader(new InputStreamReader(process.getErrorStream()));
+        StringBuilder errorString = new StringBuilder();
+        while ((line = error.readLine()) != null) {
+            errorString.append(line);
+        }
+
+        FileUtils.deleteDirectory(new File(programDir));
+        Map<String, String> response = new LinkedHashMap<>();
+        if(validationService.validateOutputSize(result)) {
+            response.put("data", errorString + result);
+            response.put("error", null);
+        }
+        else {
+            response.put("data", errorString + result);
+            response.put("error","Your Code Produced unusually large output");
+        }
+        return response;
     }
 }

@@ -1,2 +1,2 @@
 #!/bin/bash
-python $1 < $2
+timeout 2s python $1 < $2
