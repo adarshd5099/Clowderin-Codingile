@@ -12,6 +12,7 @@
 	<artifactId>Clowderin-Codingile</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Clowderin-Codingile</name>
+	<packaging>war</packaging>
 	<description>Clowderin Coding platform backend</description>
 	<properties>
 		<java.version>11</java.version>
@@ -34,6 +35,7 @@
     </dependencies>
 
 	<build>
+		<finalName>${artifactId}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

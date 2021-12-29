@@ -5,6 +5,7 @@ import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.ServletContext;
 import java.io.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -15,6 +16,9 @@ public class CompileService {
 
     @Autowired
     private ValidationService validationService;
+
+    @Autowired
+    private ServletContext context;
 
     public  Map<String, String> gccService(CompileRequest compileRequest) throws IOException {
         String programId = java.util.UUID.randomUUID().toString();
@@ -31,7 +35,7 @@ public class CompileService {
         inputWriter.write(compileRequest.getInput());
         inputWriter.close();
 
-        String scriptPath = System.getProperty("user.dir") + "/scripts";
+        String scriptPath = context.getRealPath("WEB-INF/classes/scripts");
         String programPath = programFile.getPath();
 
         ProcessBuilder builder = new ProcessBuilder("/bin/bash",scriptPath+"/gcc_runner.sh",programPath,inputFile.toString(),programId);
@@ -78,8 +82,7 @@ public class CompileService {
         FileWriter inputWriter = new FileWriter(inputFile);
         inputWriter.write(compileRequest.getInput());
         inputWriter.close();
-
-        String scriptPath = System.getProperty("user.dir") + "/scripts";
+        String scriptPath = context.getRealPath("WEB-INF/classes/scripts");
         String programPath = programFile.getPath();
         String scriptName = "/python_runner.sh";
         if(pyVer == 0)
@@ -135,7 +138,7 @@ public class CompileService {
         inputWriter.write(compileRequest.getInput());
         inputWriter.close();
 
-        String scriptPath = System.getProperty("user.dir") + "/scripts";
+        String scriptPath = context.getRealPath("WEB-INF/classes/scripts");
         String programPath = programFile.getPath();
 
         ProcessBuilder builder = new ProcessBuilder("/bin/bash",scriptPath+"/java_runner.sh",programPath,inputFile.toString(),programId);

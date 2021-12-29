@@ -30,5 +30,10 @@ public class CodingController {
         }
     }
 
+    @GetMapping("/hello")
+    public String hello(){
+        return "Iam Working yay!!";
+    }
+
 }
 
