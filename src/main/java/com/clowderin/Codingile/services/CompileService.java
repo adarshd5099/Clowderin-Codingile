@@ -128,6 +128,7 @@ public class CompileService {
         }
         return response;
     }
+
     private StringBuilder readError(Process process) throws IOException {
         BufferedReader error =
                 new BufferedReader(new InputStreamReader(process.getErrorStream()));
