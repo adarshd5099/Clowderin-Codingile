@@ -16,8 +16,8 @@ public class CodingController {
 
     @Autowired
     private CompileService compileService;
-    @GetMapping("/compile")
-    public Map<String, String> compileGcc(@RequestBody CompileRequest compileRequest) throws IOException {
+    @PostMapping("/compile")
+    public Map<String, String> compile(@RequestBody CompileRequest compileRequest) throws IOException {
         var result = "";
         switch (compileRequest.getLanguageCode()) {
             case "0":
