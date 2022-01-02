@@ -129,10 +129,10 @@ public class CompileService {
         return response;
     }
     private StringBuilder readError(Process process) throws IOException {
-        String line = "";
         BufferedReader error =
                 new BufferedReader(new InputStreamReader(process.getErrorStream()));
         StringBuilder errorString = new StringBuilder();
+        String line;
         while ((line = error.readLine()) != null) {
             errorString.append(line);
         }
