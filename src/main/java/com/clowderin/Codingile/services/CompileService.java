@@ -21,15 +21,14 @@ public class CompileService {
     @Autowired
     private ServletContext context;
 
-//        private final String scriptPath = System.getProperty("user.dir") + "/src/main/resources/scripts";
-
     public Map<String, String> gccService(CompileRequest compileRequest) throws IOException {
         String scriptPath = context.getRealPath("WEB-INF/classes/scripts");
+//        String scriptPath = System.getProperty("user.dir") + "/src/main/resources/scripts";
         File tempDirectory = new File(System.getProperty("user.dir"));
         String programId = java.util.UUID.randomUUID().toString();
         var programDir = tempDirectory + "/temp/" + programId;
         var a = new File(programDir).mkdirs();
-        File programFile = new File(programDir, programId + ".c");
+        File programFile = new File(programDir, "program.c");
         FileWriter myWriter = new FileWriter(programFile);
         myWriter.write(compileRequest.getProgramBody());
         myWriter.close();
@@ -50,13 +49,14 @@ public class CompileService {
             e.printStackTrace();
         }
         String result = readOutput(outputFile);
-        StringBuilder errorString = readError(process);
+        String errorString = errorCleaner(readError(process), String.valueOf(programFile),"program.c");
         FileUtils.deleteDirectory(new File(programDir));
         return createResponse(result, errorString);
     }
 
     public Map<String, String> pythonService(CompileRequest compileRequest, int pyVer) throws IOException {
         String scriptPath = context.getRealPath("WEB-INF/classes/scripts");
+//        String scriptPath = System.getProperty("user.dir") + "/src/main/resources/scripts";
         File tempDirectory = new File(System.getProperty("user.dir"));
         String programId = java.util.UUID.randomUUID().toString();
         var programDir = tempDirectory + "/temp/" + programId;
@@ -83,8 +83,7 @@ public class CompileService {
             e.printStackTrace();
         }
         String result = readOutput(outputFile);
-        StringBuilder errorString = readError(process);
-        FileUtils.deleteDirectory(new File(programDir));
+        String errorString = errorCleaner(readError(process), String.valueOf(programFile),"Main.py");        FileUtils.deleteDirectory(new File(programDir));
         return createResponse(result, errorString);
     }
 
@@ -116,16 +115,15 @@ public class CompileService {
             e.printStackTrace();
         }
         String result = readOutput(outputFile);
-        StringBuilder errorString = readError(process);
-        FileUtils.deleteDirectory(new File(programDir));
+        String errorString = errorCleaner(readError(process), String.valueOf(programFile),"Main.java");        FileUtils.deleteDirectory(new File(programDir));
         return createResponse(result, errorString);
     }
 
-    private Map<String, String> createResponse(String result, StringBuilder errorString) {
+    private Map<String, String> createResponse(String result, String errorString) {
         Map<String, String> response = new LinkedHashMap<>();
         if (validationService.validateOutputSize(result)) {
-            response.put("data", errorString + result);
-            response.put("error", null);
+            response.put("data", result);
+            response.put("error", String.valueOf(errorString));
         } else {
             response.put("data", errorString + result);
             response.put("error", "Your Code Produced unusually large output");
@@ -141,6 +139,11 @@ public class CompileService {
             errorString.append(line);
         }
         return errorString;
+    }
+
+    private String errorCleaner(StringBuilder errorString, String programFile,String programName) {
+        String error = errorString.toString();
+        return error.replace(programFile, programName).trim().replaceAll(" +", " ");
     }
 
     private String readOutput(File outputFile) {

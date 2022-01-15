@@ -1,2 +1,2 @@
 #!/bin/bash
-timeout 2s python "$1" < "$2" > "$4"
+timeout 2s python2 "$1" < "$2" > "$4"
