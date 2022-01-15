@@ -20,11 +20,12 @@ public class CompileService {
     private ValidationService validationService;
     @Autowired
     private ServletContext context;
-    private final String scriptPath = System.getProperty("user.dir") + "/src/main/resources/scripts";
-    //    private final String scriptPath = context.getRealPath("WEB-INF/classes/scripts");
-    private final File tempDirectory = new File(System.getProperty("user.dir"));
+
+//        private final String scriptPath = System.getProperty("user.dir") + "/src/main/resources/scripts";
 
     public Map<String, String> gccService(CompileRequest compileRequest) throws IOException {
+        String scriptPath = context.getRealPath("WEB-INF/classes/scripts");
+        File tempDirectory = new File(System.getProperty("user.dir"));
         String programId = java.util.UUID.randomUUID().toString();
         var programDir = tempDirectory + "/temp/" + programId;
         var a = new File(programDir).mkdirs();
@@ -55,6 +56,8 @@ public class CompileService {
     }
 
     public Map<String, String> pythonService(CompileRequest compileRequest, int pyVer) throws IOException {
+        String scriptPath = context.getRealPath("WEB-INF/classes/scripts");
+        File tempDirectory = new File(System.getProperty("user.dir"));
         String programId = java.util.UUID.randomUUID().toString();
         var programDir = tempDirectory + "/temp/" + programId;
         var a = new File(programDir).mkdirs();
@@ -71,8 +74,7 @@ public class CompileService {
         File outputFile = new File(programDir, programId + ".txt");
         String programPath = programFile.getPath();
         String scriptName = "/python_runner.sh";
-        if (pyVer == 0)
-            scriptName = "/python3_runner.sh";
+        if (pyVer == 0) scriptName = "/python3_runner.sh";
         ProcessBuilder builder = new ProcessBuilder("/bin/bash", scriptPath + scriptName, programPath, inputFile.toString(), programId, outputFile.toString());
         Process process = builder.start();
         try {
@@ -87,6 +89,8 @@ public class CompileService {
     }
 
     public Map<String, String> javaService(CompileRequest compileRequest) throws IOException {
+        String scriptPath = context.getRealPath("WEB-INF/classes/scripts");
+        File tempDirectory = new File(System.getProperty("user.dir"));
         String programId = java.util.UUID.randomUUID().toString();
         var programDir = tempDirectory + "/temp/" + programId;
         var a = new File(programDir).mkdirs();
@@ -122,7 +126,7 @@ public class CompileService {
         if (validationService.validateOutputSize(result)) {
             response.put("data", errorString + result);
             response.put("error", null);
-        }else{
+        } else {
             response.put("data", errorString + result);
             response.put("error", "Your Code Produced unusually large output");
         }
@@ -130,8 +134,7 @@ public class CompileService {
     }
 
     private StringBuilder readError(Process process) throws IOException {
-        BufferedReader error =
-                new BufferedReader(new InputStreamReader(process.getErrorStream()));
+        BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
         StringBuilder errorString = new StringBuilder();
         String line;
         while ((line = error.readLine()) != null) {
@@ -139,6 +142,7 @@ public class CompileService {
         }
         return errorString;
     }
+
     private String readOutput(File outputFile) {
         String result = "";
         try (BufferedReader br = new BufferedReader(new FileReader(outputFile))) {
