@@ -115,7 +115,9 @@ public class CompileService {
             e.printStackTrace();
         }
         String result = readOutput(outputFile);
-        String errorString = errorCleaner(readError(process), String.valueOf(programFile),"Main.java");        FileUtils.deleteDirectory(new File(programDir));
+        String errorString = errorCleaner(readError(process), String.valueOf(programFile),"Main.java");
+        errorString = errorString.replace("NOTE: Picked up JDK_JAVA_OPTIONS: --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED","");
+        FileUtils.deleteDirectory(new File(programDir));
         return createResponse(result, errorString);
     }
 
