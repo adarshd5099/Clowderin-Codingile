@@ -1,3 +1,3 @@
 #!/bin/bash
 javac "$1"
-timeout 2s java "$1" < "$2" > "$3".txt
+timeout 2s java "$1" < "$2" > "$4"
